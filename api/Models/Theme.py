@@ -2,9 +2,9 @@ from database import db
 
 class Theme(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     theme_name = db.Column(db.String(200), unique=False)
-    rating = db.Column(db.Integer)
+    rating = db.Column(db.Integer, default = -1)
 
     def __init__(self, user_id, theme_name, rating):  
         self.user_id = user_id
