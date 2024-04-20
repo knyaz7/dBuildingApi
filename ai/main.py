@@ -19,7 +19,7 @@ def rating(theme_dialog):
                    "content": "Оцени по манере общения пользователя, его удовлетворенность диалогом по стобальной шкале. Ответ предоставь исключительно в численном виде. Диалог: " + theme_dialog}]
     )
 
-    # Вывод ответа0,
+    # Вывод ответа
     estimation = response.choices[0].message.content
     return estimation
 
@@ -37,7 +37,7 @@ def audio_to_text(audio):
         text = recognizer.recognize_google(audio_data, language="ru-RU")
 
     return text
-def request_gpt(text, list_of_target_topics):
+def request_gpt(text, list_of_target_topics, previous_theme):
     # Установка политики цикла событий для предотвращения предупреждения на Windows
     asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())
 
@@ -50,9 +50,27 @@ def request_gpt(text, list_of_target_topics):
         messages=[{"role": "user",
                    "content": "Укажи тему обращения, если она есть в списке {" + ', '.join(list_of_target_topics) +"},то укажи из списка, в ином случае задай название темы самостоятельно, а затем предоставь ответ на обращение. Не забывай про точки в тексте. Формат: Тема:...  Ответ:... Обращение: " + text}]
     )
+    response, theme = get_theme_and_response(response.choices[0].message.content)
+    if check_previous_theme(previous_theme, theme) == previous_theme:
+        # ПОЛУЧИТЬ ВЕСЬ СПИСОК СООБЩЕНИЙ ПО ТЕМЕ previous_theme И ПРИСВОИТЬ ЭТО В TEXT (Сообщения в теме должны быть пронумерованны)
 
-    # Вывод ответа0,
-    return response.choices[0].message.content
+        # Установка политики цикла событий для предотвращения предупреждения на Windows
+        asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())
+
+        # Инициализация клиента
+        client = Client()
+
+        # Отправка сообщения и получение ответа
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user",
+                       "content": "Ответь на последний вопрос по номеру учитывая остальной контекст. Обращение: " + text}]
+        )
+        return response, previous_theme
+    else
+        return response, theme
+
+
 
 def get_theme_and_response(text):
     text = re.sub(r'\n', '', text)
@@ -116,6 +134,7 @@ def get_theme_and_response(text):
 #         case "История операций":
 #         # СТРАНИЦА ИНФОРМАТИВНАЯ
 #         case "Расход за период":
+#         print("С какого по какое число вы хотите узнать разход средств?")
 #         # СТРАНИЦА ИНФОРМАТИВНАЯ
 
 
