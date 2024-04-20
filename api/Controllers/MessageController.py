@@ -165,6 +165,8 @@ def add_message():
         last_theme = last_theme.theme_name
 
     response, theme = request_gpt(message, ("Открытие кредита", "Открытие вклада", "Обмен валюты", "Перевод", "История операций", "Расход за период"), last_theme, last_theme_id)
+    if (response == "none"):
+        response, theme = request_gpt(message, ("Открытие кредита", "Открытие вклада", "Обмен валюты", "Перевод", "История операций", "Расход за период"), last_theme, last_theme_id)
 
     if last_theme.strip() == theme.strip():
         theme_id = last_theme_id
