@@ -51,20 +51,20 @@ def add_autocredit():
     # Получаем ID вставленной записи
     inserted_autocredit_id = new_autocredit.id
 
-    return jsonify({'status': True, 'message': 'Application added successfully', 'application_id': inserted_autocredit_id}), 201
+    return jsonify({'status': True, 'message': 'AutoCredit added successfully', 'application_id': inserted_autocredit_id}), 201
 
 def update_autocredit(item_id):
     autocredit = AutoCredit.query.get(item_id)
     if not autocredit:
         return jsonify({'status': False, 'message': 'AutoCredit not found'}), 404
 
-    car_price = request.form.get('status')
-    first_payment = request.form.get('status')
-    period = request.form.get('status')
-    title = request.form.get('status')
-    inn = request.form.get('status')
-    fact_adress = request.form.get('status')
-    avg_earning = request.form.get('status')
+    car_price = request.form.get('car_price')
+    first_payment = request.form.get('first_payment')
+    period = request.form.get('period')
+    title = request.form.get('title')
+    inn = request.form.get('inn')
+    fact_adress = request.form.get('fact_adress')
+    avg_earning = request.form.get('avg_earning')
 
     if car_price:
         autocredit.car_price = car_price
@@ -82,4 +82,4 @@ def update_autocredit(item_id):
         autocredit.avg_earning = avg_earning
 
     db.session.commit()
-    return jsonify({'status': True, 'message': 'Application updated successfully'})
+    return jsonify({'status': True, 'message': 'AutoCredit updated successfully'})

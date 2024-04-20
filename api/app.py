@@ -5,6 +5,7 @@ from Controllers.ThemeController import *
 from Controllers.MessageController import *
 from Controllers.ApplicationController import *
 from Controllers.AutoCreditController import *
+from Controllers.ConsumerCreditController import *
 
 
 app = Flask(__name__)
@@ -45,6 +46,12 @@ app.route('/api/autocredits/', methods=['GET'])(get_autocredits)
 app.route('/api/autocredits/<int:item_id>', methods=['GET'])(get_autocredit)
 app.route('/api/autocredits/', methods=['POST'])(add_autocredit)
 app.route('/api/autocredits/<int:item_id>', methods=['PUT'])(update_autocredit)
+
+# Роуты потребительских кредитов
+app.route('/api/consumercredits/', methods=['GET'])(get_consumercredits)
+app.route('/api/consumercredits/<int:item_id>', methods=['GET'])(get_consumercredit)
+app.route('/api/consumercredits/', methods=['POST'])(add_consumercredit)
+app.route('/api/consumercredits/<int:item_id>', methods=['PUT'])(update_consumercredit)
 
 if __name__ == '__main__':
     app.run(debug=True)
