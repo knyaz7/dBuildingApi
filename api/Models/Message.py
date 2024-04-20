@@ -3,7 +3,7 @@ from database import db
 class Message(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     theme_id = db.Column(db.Integer, db.ForeignKey('theme.id'), nullable=False)
-    message = db.Column(db.String(512), unique=False)
+    message = db.Column(db.String(2048), unique=False)
     time = db.Column(db.DateTime, unique=False)
     type = db.Column(db.Boolean) # 0 - text, 1 - audio
     code = db.Column(db.String(4), unique=False)

@@ -53,14 +53,14 @@ def check_previous_theme(previous_theme, new_theme):
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user",
-                   "content": "Сравни по смыслу эту тему:" + previous_theme +" и эту тему: " + new_theme + ". Если по смыслу это две одинаковых темы напиши Да, в ином случае напиши Нет."}] )
+                   "content": "Сравни по смыслу эту тему:" + previous_theme +" и эту тему: " + new_theme + ". Если по смыслу это две хоть немного схожие темы, то напиши Да, в ином случае напиши Нет. Ответ должен быть строго только Да или Нет"}] )
 
     if response.choices[0].message.content == "Да":
         return previous_theme
     else:
         return new_theme
 
-def request_gpt(text, list_of_target_topics, previous_theme):
+def request_gpt(text, list_of_target_topics, previous_theme, previous_theme_id):
     # Установка политики цикла событий для предотвращения предупреждения на Windows
     asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())
 
@@ -71,18 +71,22 @@ def request_gpt(text, list_of_target_topics, previous_theme):
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user",
-                   "content": "Укажи тему обращения, если она есть в списке {" + ', '.join(list_of_target_topics) +"},то укажи из списка, в ином случае задай название темы самостоятельно, а затем предоставь ответ на обращение. Не забывай про точки в тексте. Формат: Тема:...  Ответ:... Обращение: " + text}]
+                   "content": "Укажи тему обращения, если она есть в списке {" + ', '.join(list_of_target_topics) +"},то укажи из списка, в ином случае задай название темы самостоятельно, а затем предоставь ответ на обращение. Не забывай про точки в тексте. Формат: Тема:...  Ответ:... Обращение: " + text + ". Отвечай в строго указанном формате."}],
+
     )
     response, theme = get_theme_and_response(response.choices[0].message.content)
     if check_previous_theme(previous_theme, theme) == previous_theme:
         # ПОЛУЧИТЬ ВЕСЬ СПИСОК СООБЩЕНИЙ ПО ТЕМЕ previous_theme И ПРИСВОИТЬ ЭТО В TEXT (Сообщения в теме должны быть пронумерованны)
         # Получаем все сообщения по теме
-        messages = Message.query.filter_by(theme_id=previous_theme).all()
+        messages = Message.query.filter_by(theme_id=previous_theme_id).all()
 
         # Формируем текст с пронумерованными сообщениями
-        text = ""
+        newText = ""
         for i, message in enumerate(messages, start=1):
-            text += f"{i}) {message.message}. "
+            newText += f"{i}) {message.message} "
+            x= i + 1
+        newText += f"{x}) {text}"
+
 
         # Установка политики цикла событий для предотвращения предупреждения на Windows
         asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())
@@ -94,9 +98,9 @@ def request_gpt(text, list_of_target_topics, previous_theme):
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user",
-                       "content": "Ответь на последний вопрос по номеру учитывая остальной контекст. Обращение: " + text}]
+                       "content": "Ответь на последний вопрос по номеру учитывая остальной контекст. Дай только ответ. Обращение: " + newText}]
         )
-        return response, previous_theme
+        return response.choices[0].message.content, previous_theme
     else:
         return response, theme
 
@@ -152,13 +156,15 @@ def add_message():
 
     if last_theme is None:
         last_theme = "chupakabra"
+        last_theme_id = 0
     else: 
+        last_theme_id = last_theme.id
         last_theme = last_theme.theme_name
 
-    response, theme = request_gpt(message, ("Открытие кредита", "Открытие вклада", "Обмен валюты", "Перевод", "История операций", "Расход за период"), last_theme)
+    response, theme = request_gpt(message, ("Открытие кредита", "Открытие вклада", "Обмен валюты", "Перевод", "История операций", "Расход за период"), last_theme, last_theme_id)
 
-    if last_theme == theme:
-        theme_id = last_theme.id
+    if last_theme.strip() == theme.strip():
+        theme_id = last_theme_id
     else:
         url = 'http://localhost:5000/api/themes/'
         payload = {
