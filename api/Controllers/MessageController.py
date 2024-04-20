@@ -129,12 +129,12 @@ def get_message(item_id):
     
 def add_message():
     user_id = request.form.get('user_id')
-    time_str  = request.form.get('time')
+    time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     type = request.form.get('type')
     code = request.form.get('code')
     sender = False
 
-    if not user_id or not time_str or not type or not code:
+    if not user_id or not type or not code:
         return jsonify({'status': False, 'message': 'Missing required fields'}), 400
     
     if type == '1':
@@ -147,12 +147,6 @@ def add_message():
         message = audio_to_text(message_file)
     else:
         message = request.form.get('message')
-
-    # Преобразование строки времени в объект datetime
-    try:
-        time = datetime.strptime(time_str, '%Y-%m-%d %H:%M:%S')
-    except ValueError:
-        return jsonify({'status': False, 'message': 'Invalid time format. Use format: YYYY-MM-DD HH:MM:SS'}), 400
     
     # Находим последнюю тему для данного пользователя
     last_theme = Theme.query.filter_by(user_id=user_id).order_by(desc(Theme.id)).first()
@@ -167,6 +161,21 @@ def add_message():
     response, theme = request_gpt(message, ("Открытие кредита", "Открытие вклада", "Обмен валюты", "Перевод", "История операций", "Расход за период"), last_theme, last_theme_id)
     if (response == "none"):
         response, theme = request_gpt(message, ("Открытие кредита", "Открытие вклада", "Обмен валюты", "Перевод", "История операций", "Расход за период"), last_theme, last_theme_id)
+
+    # spec_theme = ("открытие кредита", "открытие вклада", "обмен валюты", "перевод", "история операций", "расход за период")
+    # if theme.strip() in spec_theme:
+    #     if theme == spec_theme[0]:
+    #         code = "100"
+    #     elif theme == spec_theme[1]:
+    #         code = "200"
+    #     elif theme == spec_theme[2]:
+    #         code = "300"
+    #     elif theme == spec_theme[3]:
+    #         code = "400"
+    #     elif theme == spec_theme[4]:
+    #         code = "500"
+    #     elif theme == spec_theme[5]:
+    #         code = "600"
 
     if last_theme.strip() == theme.strip():
         theme_id = last_theme_id
