@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request, send_file
 from database import db
 from Controllers.UserController import *
 from Controllers.ThemeController import *
@@ -6,7 +6,8 @@ from Controllers.MessageController import *
 from Controllers.ApplicationController import *
 from Controllers.AutoCreditController import *
 from Controllers.ConsumerCreditController import *
-
+import pyttsx3
+import os
 
 app = Flask(__name__)
 
@@ -17,6 +18,28 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
+
+def text_to_audio(text, path):
+    engine = pyttsx3.init()
+    engine.save_to_file(text, path)
+    engine.runAndWait()
+
+def convert_text_to_audio():
+    if os.path.exists('output_audio.wav'):
+        os.remove('output_audio.wav')
+    if 'text' not in request.form:
+        return jsonify({'error': 'Text parameter is missing'}), 400
+
+    text = request.form['text']
+
+    # Уникальное имя для аудиофайла
+    audio_file_path = 'output_audio.wav'
+
+    # Преобразование текста в аудиофайл
+    text_to_audio(text, audio_file_path)
+
+    # Посылаем аудиофайл обратно в ответе
+    return send_file(audio_file_path, as_attachment=True)
 
 # Роуты пользователя
 app.route('/api/users/', methods=['GET'])(get_users)
@@ -52,6 +75,8 @@ app.route('/api/consumercredits/', methods=['GET'])(get_consumercredits)
 app.route('/api/consumercredits/<int:item_id>', methods=['GET'])(get_consumercredit)
 app.route('/api/consumercredits/', methods=['POST'])(add_consumercredit)
 app.route('/api/consumercredits/<int:item_id>', methods=['PUT'])(update_consumercredit)
+
+app.route('/api/converttexttoaudio', methods=['POST'])(convert_text_to_audio)
 
 if __name__ == '__main__':
     app.run(debug=True)
