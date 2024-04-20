@@ -108,6 +108,17 @@ def request_gpt(text, list_of_target_topics, previous_theme, previous_theme_id):
     else:
         return response, theme
 
+"""
+method=GET
+
+returns {
+    status: true/false,
+    message: OK / Error
+    data = {{id, theme_id, message, time, type, code, sender}, ...} if success
+}
+
+sender: false -> user / true -> server
+"""
 def get_messages():
     messages = Message.query.all()
     output = {
@@ -120,6 +131,17 @@ def get_messages():
         output['data'].append(user_data)
     return jsonify(output)
 
+"""
+method=GET/message_id
+
+returns {
+    status: true/false,
+    message: OK / Error
+    data = {id, theme_id, message, time, type, code, sender} if success
+}
+
+sender: 0 -> user / 1 -> server
+"""
 def get_message(item_id):
     message = Message.query.get(item_id)
     if message:
@@ -127,7 +149,27 @@ def get_message(item_id):
         return jsonify({'status': True, 'message': 'OK', 'data': user_data})
     else:
         return jsonify({'status': False, 'message': 'Message not found'}), 404
-    
+
+"""
+method=POST
+
+POST body for sending message: user_id, type, code="000", message
+type: 0 -> text message / 1 -> audio message
+returns {
+    status: true/false,
+    message: OK / Error
+    data = inserted message id if success
+}
+
+POST body for target action: code
+returns {
+    message: server ask (you should pop it into chat from server)
+    redir = "api/*insert api route*" / false
+    values = {code: user_option1, code: user_option2} / code
+}
+
+example logic - if (redir) route(localhost/redir)
+"""    
 def add_message():
     user_id = request.form.get('user_id', -1)
     time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
@@ -302,7 +344,7 @@ def add_message():
             if last_theme.strip() == theme.strip():
                 theme_id = last_theme_id
             else:
-                url = 'http://localhost:5000/api/themes/'
+                url = 'http://localhost:5000/api/themes/' 
                 payload = {
                     'user_id': user_id,
                     'theme_name': theme

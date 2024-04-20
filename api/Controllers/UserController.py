@@ -13,6 +13,7 @@ def get_users():
         output['data'].append(user_data)
     return jsonify(output)
 
+
 def get_user(item_id):
     user = User.query.get(item_id)
     if user:
@@ -21,7 +22,16 @@ def get_user(item_id):
     else:
         return jsonify({'status': False, 'message': 'User not found'}), 404
 
-    
+"""
+method=POST
+POST body: login (unique), first_name, last_name, password
+
+returns {
+    status: true/false,
+    message: OK / Error
+    data = inserted user id if success
+}
+"""
 def add_user():
     login = request.form.get('login')
     first_name = request.form.get('first_name')
@@ -44,6 +54,17 @@ def add_user():
 
     return jsonify({'status': True, 'message': 'User added successfully', 'user_id': inserted_user_id}), 201
 
+
+"""
+method=PUT
+PUT body: login (unique), first_name, last_name, password
+
+returns {
+    status: true/false,
+    message: 'User updated successfully' / Error
+    data = inserted user id if success
+}
+"""
 def update_user(item_id):
     user = User.query.get(item_id)
     if not user:
@@ -55,6 +76,9 @@ def update_user(item_id):
     password = request.form.get('password')
 
     if login:
+        existing_user = User.query.filter_by(login=login).first()
+        if existing_user:
+            return jsonify({'status': False, 'message': 'User with this login already exists'}), 409
         user.login = login
     if first_name:
         user.first_name = first_name
