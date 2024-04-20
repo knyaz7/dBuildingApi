@@ -4,6 +4,7 @@ from Models.User import User
 from Models.Theme import Theme
 from Controllers.UserController import *
 from Controllers.ThemeController import *
+from Controllers.MessageController import *
 
 app = Flask(__name__)
 
@@ -26,6 +27,11 @@ app.route('/api/themes/', methods=['GET'])(get_themes)
 app.route('/api/themes/<int:item_id>', methods=['GET'])(get_theme)
 app.route('/api/themes/', methods=['POST'])(add_theme)
 app.route('/api/themes/<int:item_id>', methods=['PUT'])(update_theme)
+
+# Роуты сообщений
+app.route('/api/messages/', methods=['GET'])(get_messages)
+app.route('/api/messages/<int:item_id>', methods=['GET'])(get_message)
+app.route('/api/messages/', methods=['POST'])(add_message)
 
 if __name__ == '__main__':
     app.run(debug=True)
