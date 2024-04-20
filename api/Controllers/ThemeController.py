@@ -6,6 +6,7 @@ from datetime import datetime
 import asyncio
 from asyncio import WindowsSelectorEventLoopPolicy
 from g4f.client import Client
+import re
 
 def themeRating(theme_dialog_user):
     # Установка политики цикла событий для предотвращения предупреждения на Windows
@@ -25,8 +26,12 @@ def themeRating(theme_dialog_user):
 
     # Вывод ответа
     estimation = response.choices[0].message.content
-    return estimation
-
+    
+    if estimation.isnumeric():
+        return int(estimation)
+    else:
+        return re.search(r'\d+', estimation).group()
+    
 def get_themes():
     themes = Theme.query.all()
     output = {

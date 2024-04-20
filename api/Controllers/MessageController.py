@@ -85,6 +85,7 @@ def request_gpt(text, list_of_target_topics, previous_theme, previous_theme_id):
 
         # Формируем текст с пронумерованными сообщениями
         newText = ""
+        x = 0
         for i, message in enumerate(messages, start=1):
             newText += f"{i}) {message.message} "
             x = i + 1
@@ -128,74 +129,195 @@ def get_message(item_id):
         return jsonify({'status': False, 'message': 'Message not found'}), 404
     
 def add_message():
-    user_id = request.form.get('user_id')
+    user_id = request.form.get('user_id', -1)
     time = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-    type = request.form.get('type')
+    type = request.form.get('type', 2)
     code = request.form.get('code')
     sender = False
+    redir = ""
+    if code != "000":
+        target_theme_id = list(code)[0]
+        theme_index = list(code)[1]
+        mas_index = list(code)[2]
+        match target_theme_id:
+            case "1":
+                match theme_index:
+                    case "1":   # Потребительский
+                        match mas_index:
+                            case "0":
+                                response = "Какая у вас цель кредитования?"
+                                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "111"}), 200
+                            case "1":
+                                response = "На какую сумму вы хотите взять кредит?"
+                                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "112"}), 200
+                            case "2":
+                                response = "На какой срок вы планируете взять кредит?"
+                                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "115"}), 200
+                    case "2":    # Автокредит
+                        match mas_index:
+                            case "0":
+                                response = "Какая стоимость автомобиля?"
+                                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "121"}), 200
+                            case "1":
+                                response = "Каков первоначальный взнос?"
+                                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "122"}), 200
+                            case "2":
+                                response = "На какой срок вы планируете взять кредит?"
+                                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "125"}), 200
 
-    if not user_id or not type or not code:
-        return jsonify({'status': False, 'message': 'Missing required fields'}), 400
-    
-    if type == '1':
-        # Проверяем, есть ли файл в запросе
-        if 'message' not in request.files:
-            return jsonify({'status': False, 'message': 'No file part'}), 400
+                    case "3":   # Ипотека
+                        match mas_index:
+                            case "0":
+                                response = "Какая у вас цель кредитования?"
+                                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "131"}), 200
+                            case "1":
+                                response = "На какую сумму вы хотите взять кредит?"
+                                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "132"}), 200
+                            case "2":
+                                response = "Каков первоначальный взнос?"
+                                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "133"}), 200
+                            case "3":
+                                response = "На какой срок вы планируете взять кредит?"
+                                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "135"}), 200
+                match mas_index:
+                    case "5":
+                        response = "Укажите Наименование"
+                        return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "1" + theme_index + "6"}), 200
+                    case "6":
+                        response = "Укажите ИНН"
+                        return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "1" + theme_index + "7"}), 200
+                    case "7":
+                        response = "Укажите Фактический адрес компании по месту вашей работы"
+                        return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "1" + theme_index + "8"}), 200
+                    case "8":
+                        response = "Укажите Среднемесячный доход после уплаты налогов за последние 12 месяцев"
+                        return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "1" + theme_index + "9"}), 200
+                    case "9":    
+                        if theme_index == '1':
+                            redir = "api/consumerCredit/"
+                        elif theme_index == '2':
+                            redir = "api/autoCredit/"
+                        elif theme_index == '3':
+                            redir = "api/mortgage/"
+                        return jsonify({'redir': redir if redir != "" else False}), 200
 
-        # Получаем файл из запроса
-        message_file = request.files['message']
-        message = audio_to_text(message_file)
+            case "2":
+                match theme_index:
+                    case "1":
+                        response = "Какая сумма вклада?"
+                        return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "220"}), 200
+                    case "2":
+                        response = "Какой срок размещения?"
+                        return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "230"}), 200
+                    case "3":
+                        redir = "api/contribution"
+                        return jsonify({'redir': redir if redir != "" else False}), 200
+            case "3":
+                match theme_index:
+                    case "1":
+                        response = "На какую валюту вы хотите обменять?"
+                        return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "320"}), 200
+                    case "2":
+                        response = "Сколько вы хотите обменять?"
+                        return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "330"}), 200
+                    case "3":
+                        redir = "api/currencyExchange"
+                        return jsonify({'redir': redir if redir != "" else False}), 200
+
+            case "4":
+                match theme_index:
+                    case "1":
+                        response = "Укажите номер счета на который вы хотите перевести деньги?"
+                        return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "320"}), 200
+                    case "2":
+                        response = "Укажите сумму перевода?"
+                        return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "330"}), 200
+                    case "3":
+                        redir = "api/moneyTransfer"
+                        return jsonify({'redir': redir if redir != "" else False}), 200
+            case "6":
+                match theme_index:
+                    case "1":
+                        redir = "smth"
+                        return jsonify({'redir': redir if redir != "" else False}), 200
     else:
-        message = request.form.get('message')
-    
-    # Находим последнюю тему для данного пользователя
-    last_theme = Theme.query.filter_by(user_id=user_id).order_by(desc(Theme.id)).first()
+        if not user_id or not type or not code:
+            return jsonify({'status': False, 'message': 'Missing required fields'}), 400
+        
+        if type == '1':
+            # Проверяем, есть ли файл в запросе
+            if 'message' not in request.files:
+                return jsonify({'status': False, 'message': 'No file part'}), 400
 
-    if last_theme is None:
-        last_theme = "chupakabra"
-        last_theme_id = 0
-    else: 
-        last_theme_id = last_theme.id
-        last_theme = last_theme.theme_name
+            # Получаем файл из запроса
+            message_file = request.files['message']
+            message = audio_to_text(message_file)
+        elif type == '0':
+            message = request.form.get('message')
+        
+        # Находим последнюю тему для данного пользователя
+        last_theme = Theme.query.filter_by(user_id=user_id).order_by(desc(Theme.id)).first()
 
-    response, theme = request_gpt(message, ("Открытие кредита", "Открытие вклада", "Обмен валюты", "Перевод", "История операций", "Расход за период"), last_theme, last_theme_id)
-    if (response == "none"):
+        if last_theme is None:
+            last_theme = "chupakabra"
+            last_theme_id = 0
+        else: 
+            last_theme_id = last_theme.id
+            last_theme = last_theme.theme_name
+
         response, theme = request_gpt(message, ("Открытие кредита", "Открытие вклада", "Обмен валюты", "Перевод", "История операций", "Расход за период"), last_theme, last_theme_id)
+        if (response == "none"):
+            response, theme = request_gpt(message, ("Открытие кредита", "Открытие вклада", "Обмен валюты", "Перевод", "История операций", "Расход за период"), last_theme, last_theme_id)
 
-    # spec_theme = ("открытие кредита", "открытие вклада", "обмен валюты", "перевод", "история операций", "расход за период")
-    # if theme.strip() in spec_theme:
-    #     if theme == spec_theme[0]:
-    #         code = "100"
-    #     elif theme == spec_theme[1]:
-    #         code = "200"
-    #     elif theme == spec_theme[2]:
-    #         code = "300"
-    #     elif theme == spec_theme[3]:
-    #         code = "400"
-    #     elif theme == spec_theme[4]:
-    #         code = "500"
-    #     elif theme == spec_theme[5]:
-    #         code = "600"
+        spec_theme = ("открытие кредита", "открытие вклада", "обмен валюты", "перевод", "история операций", "расход за период")
+        if theme.strip() in spec_theme:
+            if theme.strip() == spec_theme[0]:
+                code = "100"
+                response = "Какой кредит вы хотите открыть?" # НА ФРОНТ ТЕКСТОМ НА ВЫВОД В ДИАЛОГ
+                values = {110: "Потребительский", 120: "Автокредит", 130: "Ипотека"}
+                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': values}), 200
+            elif theme == spec_theme[1]:
+                code = "200"
+                response = "Условия договора:/n Срок договора - 36 месяцев/n Расторжение без потери % ежеквартально/n Выплата % ежеквартально/n Без пополнения/n С капитализацией/n Без автопролонгации/n Хотите открыть вклад?" # НА ФРОНТ ТЕКСТОМ НА ВЫВОД В ДИАЛОГ
+                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "210"}), 200
+            elif theme == spec_theme[2]:
+                code = "300"
+                response = "Какую валюту вы хотите обменять?"  # НА ФРОНТ ТЕКСТОМ НА ВЫВОД В ДИАЛОГ
+                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "310"}), 200
+            elif theme == spec_theme[3]:
+                code = "400"
+                response = "С какого счета вы хотите перевести деньги?"  # НА ФРОНТ ТЕКСТОМ НА ВЫВОД В ДИАЛОГ
+                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "410"}), 200
+            elif theme == spec_theme[4]:
+                code = "500"
+                redir = "/api/historyOperations"
+                return jsonify({'redir': redir if redir != "" else False}), 200
+            elif theme == spec_theme[5]:
+                code = "600"
+                response = "С какого по какое число вы хотите узнать расход средств?" # ПРИЗЫВ К ДЕЙСТВИИ НА ПЕРЕХОД К СТРАНИЦЕ РАСХОД ЗА ПЕРИОД
+                redir = "/periodSpend"
+                return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "610"}), 200
+        else:
 
-    if last_theme.strip() == theme.strip():
-        theme_id = last_theme_id
-    else:
-        url = 'http://localhost:5000/api/themes/'
-        payload = {
-            'user_id': user_id,
-            'theme_name': theme
-        }
-        themeJSON = requests.post(url, data=payload)
-        # Обработка ответа и извлечение theme_id
-        if themeJSON.status_code == 201:  # Проверяем успешность запроса
-            theme_id = themeJSON.json().get('theme_id')
+            if last_theme.strip() == theme.strip():
+                theme_id = last_theme_id
+            else:
+                url = 'http://localhost:5000/api/themes/'
+                payload = {
+                    'user_id': user_id,
+                    'theme_name': theme
+                }
+                themeJSON = requests.post(url, data=payload)
+                # Обработка ответа и извлечение theme_id
+                if themeJSON.status_code == 201:  # Проверяем успешность запроса
+                    theme_id = themeJSON.json().get('theme_id')
 
-    new_message = Message(theme_id=theme_id, message=message, time=time, type=bool(int(type)), code=code, sender = sender)
-    new_response = Message(theme_id=theme_id, message=response, time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), type=False, code=000, sender = True)
-    db.session.add(new_message)
-    db.session.add(new_response)
-    db.session.commit()
+            new_message = Message(theme_id=theme_id, message=message, time=time, type=bool(int(type)), code=code, sender = sender)
+            new_response = Message(theme_id=theme_id, message=response, time=datetime.now().strftime('%Y-%m-%d %H:%M:%S'), type=False, code="000", sender = True)
+            db.session.add(new_message)
+            db.session.add(new_response)
+            db.session.commit()
 
-    inserted_message_id = new_message.id
+            inserted_message_id = new_message.id
 
-    return jsonify({'status': True, 'message': 'Message added successfully', 'message_id': inserted_message_id}), 201
+            return jsonify({'status': True, 'message': 'Message added successfully', 'redir': redir,'message_id': inserted_message_id}), 201
