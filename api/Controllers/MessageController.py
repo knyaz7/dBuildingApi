@@ -37,6 +37,7 @@ def get_theme_and_response(text):
     if match:
         theme = match.group(1)
         response = match.group(2)
+        theme = re.sub(r'[^а-яёА-ЯЁ]', ' ', theme.lower())
         return response, theme
     else:
         return "none", "none"
@@ -53,7 +54,10 @@ def check_previous_theme(previous_theme, new_theme):
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user",
-                   "content": "Сравни по смыслу эту тему:" + previous_theme +" и эту тему: " + new_theme + ". Если по смыслу это две хоть немного схожие темы, то напиши Да, в ином случае напиши Нет. Ответ должен быть строго только Да или Нет"}] )
+                   "content": "Если эти подтемы имеют общую тему, напиши Да, в ином случае напиши Нет. Ответ должен быть строго только Да или Нет. \
+                    Подтема 1:" + previous_theme +" . Подтема 2: " + new_theme 
+                }] 
+    )
 
     if response.choices[0].message.content == "Да":
         return previous_theme
@@ -71,7 +75,7 @@ def request_gpt(text, list_of_target_topics, previous_theme, previous_theme_id):
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[{"role": "user",
-                   "content": "Укажи тему обращения, если она есть в списке {" + ', '.join(list_of_target_topics) +"},то укажи из списка, в ином случае задай название темы самостоятельно, а затем предоставь ответ на обращение. Не забывай про точки в тексте. Формат: Тема:...  Ответ:... Обращение: " + text + ". Отвечай в строго указанном формате."}],
+                   "content": "Ты голосовой помощник банка. Укажи тему обращения, если она есть в списке {" + ', '.join(list_of_target_topics) +"},то укажи из списка, в ином случае задай название темы самостоятельно, а затем предоставь ответ на обращение. Не забывай про точки в тексте. Формат: Тема:...  Ответ:... Обращение: " + text + ". Отвечай в строго указанном формате."}],
 
     )
     response, theme = get_theme_and_response(response.choices[0].message.content)
@@ -87,7 +91,6 @@ def request_gpt(text, list_of_target_topics, previous_theme, previous_theme_id):
             x= i + 1
         newText += f"{x}) {text}"
 
-
         # Установка политики цикла событий для предотвращения предупреждения на Windows
         asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())
 
@@ -98,7 +101,8 @@ def request_gpt(text, list_of_target_topics, previous_theme, previous_theme_id):
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[{"role": "user",
-                       "content": "Ответь на последний вопрос по номеру учитывая остальной контекст. Дай только ответ. Обращение: " + newText}]
+                       "content": "Ответь на последнее обращение по номеру, учитывая остальной контекст. Дай только ответ. \
+                        История диалога, где поочередно задается обращение и выдается ответ: " + newText}]
         )
         return response.choices[0].message.content, previous_theme
     else:
