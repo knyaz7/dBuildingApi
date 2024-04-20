@@ -10,7 +10,6 @@ from g4f.client import Client
 import re
 import requests
 
-
 def audio_to_text(audio):
     # Создаем объект распознавателя речи
     recognizer = sr.Recognizer()
@@ -88,7 +87,7 @@ def request_gpt(text, list_of_target_topics, previous_theme, previous_theme_id):
         newText = ""
         for i, message in enumerate(messages, start=1):
             newText += f"{i}) {message.message} "
-            x= i + 1
+            x = i + 1
         newText += f"{x}) {text}"
 
         # Установка политики цикла событий для предотвращения предупреждения на Windows
@@ -136,7 +135,7 @@ def add_message():
     sender = False
 
     if not user_id or not time_str or not type or not code:
-        return jsonify({'status': False, 'error': 'Missing required fields'}), 400
+        return jsonify({'status': False, 'message': 'Missing required fields'}), 400
     
     if type == '1':
         # Проверяем, есть ли файл в запросе
@@ -189,23 +188,3 @@ def add_message():
     inserted_message_id = new_message.id
 
     return jsonify({'status': True, 'message': 'Message added successfully', 'message_id': inserted_message_id}), 201
-
-
-# def update_theme(item_id):
-#     theme = Theme.query.get(item_id)
-#     if not theme:
-#         return jsonify({'status': False, 'message': 'Theme not found'}), 404
-
-#     user_id = request.form.get('user_id')
-#     theme_name = request.form.get('theme_name')
-#     rating = request.form.get('rating')
-
-#     if user_id:
-#         theme.user_id = user_id
-#     if theme_name:
-#         theme.theme_name = theme_name
-#     if rating:
-#         theme.rating = rating
-
-#     db.session.commit()
-#     return jsonify({'status': True, 'message': 'Theme updated successfully'})

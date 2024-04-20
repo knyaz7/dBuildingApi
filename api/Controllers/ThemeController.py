@@ -1,5 +1,31 @@
 from flask import jsonify, request
 from Models.Theme import Theme, db
+from Models.Message import Message
+from sqlalchemy import desc
+from datetime import datetime
+import asyncio
+from asyncio import WindowsSelectorEventLoopPolicy
+from g4f.client import Client
+
+def themeRating(theme_dialog_user):
+    # Установка политики цикла событий для предотвращения предупреждения на Windows
+    asyncio.set_event_loop_policy(WindowsSelectorEventLoopPolicy())
+
+    # Инициализация клиента
+    client = Client()
+
+    # Отправка сообщения  и получение ответа
+    response = client.chat.completions.create(
+        model="gpt-3.5-turbo",
+        messages=[{"role": "user",
+                   "content": "Оцени по манере общения пользователя, его удовлетворенность диалогом по стобальной шкале. \
+                    Ответ предоставь исключительно в численном виде, при оценке учитывай, что схожие сообщения, идущие подряд, уменьшают рейтинг. \
+                        Сообщения пользователя: " + theme_dialog_user}]
+    )
+
+    # Вывод ответа
+    estimation = response.choices[0].message.content
+    return estimation
 
 def get_themes():
     themes = Theme.query.all()
@@ -35,6 +61,24 @@ def add_theme():
     db.session.commit()
 
     inserted_theme_id = new_theme.id
+
+    previous_theme = Theme.query.filter(Theme.id != inserted_theme_id, Theme.user_id == user_id).order_by(desc(Theme.id)).first()
+
+    if previous_theme:
+        # Получаем все сообщения предыдущей темы, где sender=False
+        previous_messages = Message.query.filter_by(theme_id=previous_theme.id, sender=False).all()
+
+        # Формируем строку сообщений предыдущей темы
+        previous_messages_text = " ".join([f"{i+1}) {message.message}" for i, message in enumerate(previous_messages)])
+
+        # Получаем рейтинг с помощью функции themeRating
+        rating = themeRating(previous_messages_text)
+
+        # Обновляем рейтинг предыдущей темы
+        previous_theme.rating = rating
+
+        # Сохраняем изменения в базе данных
+        db.session.commit()
 
     return jsonify({'status': True, 'message': 'Theme added successfully', 'theme_id': inserted_theme_id}), 201
 

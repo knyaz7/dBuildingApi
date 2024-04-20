@@ -29,7 +29,7 @@ def add_user():
     password = request.form.get('password')
 
     if not login or not first_name or not last_name or not password:
-        return jsonify({'status': False, 'error': 'Missing required fields'}), 400
+        return jsonify({'status': False, 'message': 'Missing required fields'}), 400
 
     existing_user = User.query.filter_by(login=login).first()
     if existing_user:
