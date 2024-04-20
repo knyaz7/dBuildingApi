@@ -4,8 +4,8 @@ from Models.Application import Application, db
 def get_applications():
     applications = Application.query.all()
     output = {
-        'status': True if len(application) > 0 else False,
-        'message': "OK" if len(application) > 0 else "Empty table",
+        'status': True if len(applications) > 0 else False,
+        'message': "OK" if len(applications) > 0 else "Empty table",
         'data': []
     }
     for application in applications:
@@ -46,7 +46,7 @@ def update_application(item_id):
     status = request.form.get('status')
 
     if status:
-        application.status = status
+        application.status = bool(status)
 
     db.session.commit()
     return jsonify({'status': True, 'message': 'Application updated successfully'})
