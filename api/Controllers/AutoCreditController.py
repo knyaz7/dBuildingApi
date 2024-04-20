@@ -32,13 +32,13 @@ def get_autocredit(item_id):
     
 def add_autocredit():
     application_id = request.form.get('application_id')
-    car_price = 0.0
-    first_payment = 0.0
-    period = 0
-    title = ""
-    inn = ""
-    fact_adress = ""
-    avg_earning = 0.0
+    car_price = request.form.get('car_price', 0.0)
+    first_payment = request.form.get('first_payment', 0.0)
+    period = request.form.get('period', 0.0)
+    title = request.form.get('title', "")
+    inn = request.form.get('inn', "")
+    fact_adress = request.form.get('fact_adress', "")
+    avg_earning = request.form.get('avg_earning', 0.0)
     
     if not application_id:
         return jsonify({'status': False, 'message': 'Missing required fields'}), 400
