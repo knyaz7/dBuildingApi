@@ -55,7 +55,7 @@ def add_mortgage():
     inserted_mortgage_id = new_mortgage.id
 
     return jsonify(
-        {'status': True, 'message': 'Mortgage added successfully', 'application_id': inserted_mortgage_id}), 201
+        {'status': True, 'message': 'Mortgage added successfully', 'mortgage_id': inserted_mortgage_id}), 201
 
 
 def update_mortgage(item_id):
