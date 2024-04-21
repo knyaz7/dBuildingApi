@@ -11,8 +11,7 @@ from Controllers.MortgageController import *
 from Controllers.CurrencyExchangeController import *
 from Controllers.ContributionController import *
 from Controllers.TransactionController import *
-from gtts import gTTS
-import os
+from Controllers.AudioController import *
 
 app = Flask(__name__)
 CORS(app) # Включаем поддержку CORS для всего приложения
@@ -24,27 +23,6 @@ db.init_app(app)
 
 with app.app_context():
     db.create_all()
-
-def text_to_audio(text, path):
-    tts = gTTS(text=text, lang='ru')
-    tts.save(path)
-
-def convert_text_to_audio():
-    if os.path.exists('output_audio.wav'):
-        os.remove('output_audio.wav')
-    if 'text' not in request.form:
-        return jsonify({'error': 'Text parameter is missing'}), 400
-
-    text = request.form['text']
-
-    # Уникальное имя для аудиофайла
-    audio_file_path = 'output_audio.wav'
-
-    # Преобразование текста в аудиофайл
-    text_to_audio(text, audio_file_path)
-
-    # Посылаем аудиофайл обратно в ответе
-    return send_file(audio_file_path, as_attachment=True)
 
 # Роуты пользователя
 app.route('/api/users/', methods=['GET'])(get_users)
