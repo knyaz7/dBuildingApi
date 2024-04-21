@@ -1,3 +1,4 @@
 api/__pycache__
 api/Controllers/__pycache__
 api/Models/__pycache__
+api/output_audio.wav
