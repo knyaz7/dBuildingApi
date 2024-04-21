@@ -7,6 +7,7 @@ from Controllers.MessageController import *
 from Controllers.ApplicationController import *
 from Controllers.AutoCreditController import *
 from Controllers.ConsumerCreditController import *
+from Controllers.MortgageController import *
 import pyttsx3
 import os
 
@@ -78,7 +79,13 @@ app.route('/api/consumercredits/<int:item_id>', methods=['GET'])(get_consumercre
 app.route('/api/consumercredits/', methods=['POST'])(add_consumercredit)
 app.route('/api/consumercredits/<int:item_id>', methods=['PUT'])(update_consumercredit)
 
-app.route('/api/converttexttoaudio', methods=['POST'])(convert_text_to_audio)
+# Роуты потребительских кредитов
+app.route('/api/mortgages/', methods=['GET'])(get_mortgages)
+app.route('/api/mortgages/<int:item_id>', methods=['GET'])(get_mortgage)
+app.route('/api/mortgages/', methods=['POST'])(add_mortgage)
+app.route('/api/mortgages/<int:item_id>', methods=['PUT'])(update_mortgage)
+
+app.route('/api/converttexttoaudio/', methods=['POST'])(convert_text_to_audio)
 
 if __name__ == '__main__':
     app.run(debug=True)
