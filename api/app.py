@@ -11,7 +11,7 @@ from Controllers.MortgageController import *
 from Controllers.CurrencyExchangeController import *
 from Controllers.ContributionController import *
 from Controllers.TransactionController import *
-import pyttsx3
+from gtts import gTTS
 import os
 
 app = Flask(__name__)
@@ -26,9 +26,8 @@ with app.app_context():
     db.create_all()
 
 def text_to_audio(text, path):
-    engine = pyttsx3.init()
-    engine.save_to_file(text, path)
-    engine.runAndWait()
+    tts = gTTS(text=text, lang='ru')
+    tts.save(path)
 
 def convert_text_to_audio():
     if os.path.exists('output_audio.wav'):
