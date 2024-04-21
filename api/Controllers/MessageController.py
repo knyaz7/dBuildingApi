@@ -239,12 +239,15 @@ def add_message():
                         return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "1" + theme_index + "9"}), 200
                     case "9":    
                         if theme_index == '1':
-                            redir = "api/consumerCredit/"
+                            redir = "api/consumercredits/"
+                            title = "Потребительский кредит"
                         elif theme_index == '2':
-                            redir = "api/autoCredit/"
+                            redir = "api/autocredits/"
+                            title = "Автокредит"
                         elif theme_index == '3':
-                            redir = "api/mortgage/"
-                        return jsonify({'redir': redir if redir != "" else False}), 200
+                            redir = "api/mortgages/"
+                            title = "Ипотека"
+                        return jsonify({'redir': redir if redir != "" else False, 'title': "История операций"}), 200
 
             case "2":
                 match theme_index:
@@ -255,8 +258,8 @@ def add_message():
                         response = "Какой срок размещения?"
                         return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "230"}), 200
                     case "3":
-                        redir = "api/contribution"
-                        return jsonify({'redir': redir if redir != "" else False}), 200
+                        redir = "api/contributions"
+                        return jsonify({'redir': redir if redir != "" else False, 'title': "Открытие вклада"}), 200
             case "3":
                 match theme_index:
                     case "1":
@@ -266,8 +269,8 @@ def add_message():
                         response = "Сколько вы хотите обменять?"
                         return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "330"}), 200
                     case "3":
-                        redir = "api/currencyExchange"
-                        return jsonify({'redir': redir if redir != "" else False}), 200
+                        redir = "api/currencyexchanges"
+                        return jsonify({'redir': redir if redir != "" else False, 'title': "Обмен валюты"}), 200
 
             case "4":
                 match theme_index:
@@ -278,13 +281,13 @@ def add_message():
                         response = "Укажите сумму перевода?"
                         return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "330"}), 200
                     case "3":
-                        redir = "api/moneyTransfer"
-                        return jsonify({'redir': redir if redir != "" else False}), 200
+                        redir = "api/transactions"
+                        return jsonify({'redir': redir if redir != "" else False, 'title': "Перевод"}), 200
             case "6":
                 match theme_index:
                     case "1":
-                        redir = "smth"
-                        return jsonify({'redir': redir if redir != "" else False}), 200
+                        redir = "periodSpend"
+                        return jsonify({'redir': redir if redir != "" else False, 'title': "Расход за период"}), 200
     else:
         if int(user_id) < 1 or not type or not code:
             return jsonify({'status': False, 'message': 'Missing required fields'}), 400
@@ -336,11 +339,10 @@ def add_message():
             elif theme.strip() == spec_theme[4]:
                 code = "500"
                 redir = "/api/historyOperations"
-                return jsonify({'redir': redir if redir != "" else False}), 200
+                return jsonify({'redir': redir if redir != "" else False, 'title': "История операций"}), 200
             elif theme.strip() == spec_theme[5]:
                 code = "600"
                 response = "С какого по какое число вы хотите узнать расход средств?" # ПРИЗЫВ К ДЕЙСТВИИ НА ПЕРЕХОД К СТРАНИЦЕ РАСХОД ЗА ПЕРИОД
-                redir = "/periodSpend"
                 return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "610"}), 200
         else:
 
