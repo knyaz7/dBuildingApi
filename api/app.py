@@ -10,6 +10,7 @@ from Controllers.ConsumerCreditController import *
 from Controllers.MortgageController import *
 from Controllers.CurrencyExchangeController import *
 from Controllers.ContributionController import *
+from Controllers.TransactionController import *
 import pyttsx3
 import os
 
@@ -98,6 +99,12 @@ app.route('/api/contributions/', methods=['GET'])(get_contributions)
 app.route('/api/contributions/<int:item_id>', methods=['GET'])(get_contribution)
 app.route('/api/contributions/', methods=['POST'])(add_contribution)
 app.route('/api/contributions/<int:item_id>', methods=['PUT'])(update_contribution)
+
+# Роуты переводов
+app.route('/api/transactions/', methods=['GET'])(get_transactions)
+app.route('/api/transactions/<int:item_id>', methods=['GET'])(get_transaction)
+app.route('/api/transactions/', methods=['POST'])(add_transaction)
+app.route('/api/transactions/<int:item_id>', methods=['PUT'])(update_transaction)
 
 app.route('/api/converttexttoaudio/', methods=['POST'])(convert_text_to_audio)
 
