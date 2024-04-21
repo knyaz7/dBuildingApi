@@ -157,8 +157,11 @@ POST body for sending message: user_id, type, code="000", message
 type: 0 -> text message / 1 -> audio message
 returns {
     status: true/false,
-    message: OK / Error
-    data = inserted message id if success
+    message: Server response / "none" (if ai is dumb)
+    ai_msg_time = time, when server responded
+    user_msg_time = time, when server registered user request
+    redir = ""
+    message_id = user inserted message id
 }
 
 POST body for target action: code
@@ -283,7 +286,7 @@ def add_message():
                         redir = "smth"
                         return jsonify({'redir': redir if redir != "" else False}), 200
     else:
-        if not user_id or not type or not code:
+        if int(user_id) < 1 or not type or not code:
             return jsonify({'status': False, 'message': 'Missing required fields'}), 400
         
         if type == '1':
@@ -318,23 +321,23 @@ def add_message():
                 response = "Какой кредит вы хотите открыть?" # НА ФРОНТ ТЕКСТОМ НА ВЫВОД В ДИАЛОГ
                 values = {110: "Потребительский", 120: "Автокредит", 130: "Ипотека"}
                 return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': values}), 200
-            elif theme == spec_theme[1]:
+            elif theme.strip() == spec_theme[1]:
                 code = "200"
                 response = "Условия договора:/n Срок договора - 36 месяцев/n Расторжение без потери % ежеквартально/n Выплата % ежеквартально/n Без пополнения/n С капитализацией/n Без автопролонгации/n Хотите открыть вклад?" # НА ФРОНТ ТЕКСТОМ НА ВЫВОД В ДИАЛОГ
                 return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "210"}), 200
-            elif theme == spec_theme[2]:
+            elif theme.strip() == spec_theme[2]:
                 code = "300"
                 response = "Какую валюту вы хотите обменять?"  # НА ФРОНТ ТЕКСТОМ НА ВЫВОД В ДИАЛОГ
                 return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "310"}), 200
-            elif theme == spec_theme[3]:
+            elif theme.strip() == spec_theme[3]:
                 code = "400"
                 response = "С какого счета вы хотите перевести деньги?"  # НА ФРОНТ ТЕКСТОМ НА ВЫВОД В ДИАЛОГ
                 return jsonify({'message': response, 'redir': redir if redir != "" else False, 'values': "410"}), 200
-            elif theme == spec_theme[4]:
+            elif theme.strip() == spec_theme[4]:
                 code = "500"
                 redir = "/api/historyOperations"
                 return jsonify({'redir': redir if redir != "" else False}), 200
-            elif theme == spec_theme[5]:
+            elif theme.strip() == spec_theme[5]:
                 code = "600"
                 response = "С какого по какое число вы хотите узнать расход средств?" # ПРИЗЫВ К ДЕЙСТВИИ НА ПЕРЕХОД К СТРАНИЦЕ РАСХОД ЗА ПЕРИОД
                 redir = "/periodSpend"
@@ -362,4 +365,4 @@ def add_message():
 
             inserted_message_id = new_message.id
 
-            return jsonify({'status': True, 'message': 'Message added successfully', 'redir': redir,'message_id': inserted_message_id}), 201
+            return jsonify({'status': True, 'message': response, 'user_msg_time': new_message.time, 'ai_msg_time': new_response.time, 'redir': redir, 'message_id': inserted_message_id}), 201

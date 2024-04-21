@@ -1,4 +1,5 @@
 from flask import Flask, request, send_file
+from flask_cors import CORS
 from database import db
 from Controllers.UserController import *
 from Controllers.ThemeController import *
@@ -10,6 +11,7 @@ import pyttsx3
 import os
 
 app = Flask(__name__)
+CORS(app) # Включаем поддержку CORS для всего приложения
 
 # Настройка подключения к базе данных MySQL
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://root:@localhost/dbuild'
