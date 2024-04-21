@@ -51,7 +51,7 @@ def add_consumercredit():
     # Получаем ID вставленной записи
     inserted_autocredit_id = new_consumercredit.id
 
-    return jsonify({'status': True, 'message': 'ConsumerCredit added successfully', 'application_id': inserted_autocredit_id}), 201
+    return jsonify({'status': True, 'message': 'ConsumerCredit added successfully', 'consumercredit_id': inserted_autocredit_id}), 201
 
 def update_consumercredit(item_id):
     autocredit = ConsumerCredit.query.get(item_id)

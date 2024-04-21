@@ -8,6 +8,7 @@ from Controllers.ApplicationController import *
 from Controllers.AutoCreditController import *
 from Controllers.ConsumerCreditController import *
 from Controllers.MortgageController import *
+from Controllers.CurrencyExchangeController import *
 import pyttsx3
 import os
 
@@ -84,6 +85,12 @@ app.route('/api/mortgages/', methods=['GET'])(get_mortgages)
 app.route('/api/mortgages/<int:item_id>', methods=['GET'])(get_mortgage)
 app.route('/api/mortgages/', methods=['POST'])(add_mortgage)
 app.route('/api/mortgages/<int:item_id>', methods=['PUT'])(update_mortgage)
+
+# Роуты обмена валюты
+app.route('/api/currencyexchanges/', methods=['GET'])(get_currencyexchanges)
+app.route('/api/currencyexchanges/<int:item_id>', methods=['GET'])(get_currencyexchange)
+app.route('/api/currencyexchanges/', methods=['POST'])(add_currencyexchange)
+app.route('/api/currencyexchanges/<int:item_id>', methods=['PUT'])(update_currencyexchange)
 
 app.route('/api/converttexttoaudio/', methods=['POST'])(convert_text_to_audio)
 

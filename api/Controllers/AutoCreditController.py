@@ -51,7 +51,7 @@ def add_autocredit():
     # Получаем ID вставленной записи
     inserted_autocredit_id = new_autocredit.id
 
-    return jsonify({'status': True, 'message': 'AutoCredit added successfully', 'application_id': inserted_autocredit_id}), 201
+    return jsonify({'status': True, 'message': 'AutoCredit added successfully', 'autocredit_id': inserted_autocredit_id}), 201
 
 def update_autocredit(item_id):
     autocredit = AutoCredit.query.get(item_id)
